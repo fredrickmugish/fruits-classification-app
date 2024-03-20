@@ -1,0 +1,10 @@
+0 Tomato
+1 Apple
+2 Banana
+3 Bean
+4 Strawberry
+5 Orange
+6 Mango
+7 Potato
+8 Papaya
+9 Cabbage
