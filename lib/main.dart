@@ -1,77 +1,42 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:flutter_tflite/flutter_tflite.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:flutter_tflite/flutter_tflite.dart';
 
-void main() => runApp(MaterialApp(
-  home: HomeScreen(),
-));
 
-class HomeScreen extends StatefulWidget {
+final Map<String, List<String>> fruitAdvantages = {
+  'apple': [
+    'Rich in antioxidants and fiber. Helps in reducing the risk of heart disease.',
+    'Contains vitamins A, C, and K.',
+  ],
+  'Banana': [
+    'Good source of potassium. Helps in maintaining healthy blood pressure.',
+    'Provides energy and supports digestion.',
+  ],
+  'Orange': [
+    'High in vitamin C. Boosts immune system and supports healthy skin.',
+    'Contains antioxidants and fiber.',
+  ],
+  // Add more fruits and their advantages as needed
+};
+
+
+class FruitClassifierApp extends StatefulWidget {
   @override
-  _MyHomeScreenState createState() => _MyHomeScreenState();
+  _FruitClassifierAppState createState() => _FruitClassifierAppState();
 }
 
-class _MyHomeScreenState extends State<HomeScreen> {
-  File? pickedImage; // Make pickedImage nullable
-  bool isImageLoaded = false;
-  List<dynamic>? _result; // Make _result nullable
-
-  String _confidence = ""; // Define _confidence with setter and getter
-  String _class = ""; // Define _name with setter and getter
-
-  getImageFromGallery() async {
-    var tempStore =
-        await ImagePicker().pickImage(source: ImageSource.gallery);
-
-    setState(() {
-      pickedImage = tempStore != null ? File(tempStore.path) : null; // Check if tempStore is null
-      isImageLoaded = pickedImage != null; // Update isImageLoaded based on pickedImage
-    });
-  }
-
-  loadMyModel() async {
-    var resultant = await Tflite.loadModel(
-        labels: "assets/labels.txt",
-        model: "assets/model.tflite"
-    );
-    print("Result after loading model: $resultant");
-  }
+class _FruitClassifierAppState extends State<FruitClassifierApp> {
+  List<dynamic>? _output;
+  bool _loading = false;
 
   @override
   void initState() {
     super.initState();
-    loadMyModel();
-  }
-
-  applyModelOnImage(File file) async {
-    // Verify pickedImage is not null
-    if (pickedImage == null) {
-      print("Error: No image selected!");
-      return;
-    }
-
-    var res = await Tflite.runModelOnImage(
-      path: file.path,
-      numResults: 2,
-      threshold: 0.5,
-      imageMean: 127.5,
-      imageStd: 127.5,
-    );
-
-    print("_result: $_result"); // Print the actual output
-
-    setState(() {
-      _result = res;
-
-      if (_result != null && _result!.isNotEmpty) {
-        // Extract information based on your model's output format (refer to documentation)
-        String str = _result![0]["labels"];
-        _class = str.substring(2);
-        _confidence = (_result![0]['confidence'] * 100.0).toStringAsFixed(2) + "%";
-      } else {
-        print("No results found from the model!"); // Inform user if no results
-      }
+    _loading = true;
+    loadModel().then((value) {
+      setState(() {
+        _loading = false;
+      });
     });
   }
 
@@ -79,37 +44,92 @@ class _MyHomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('NUTRITION DETECTION APP'),
+        title: Text('NUTRITION DETECTION APP',
+        style: TextStyle(color: Colors.white)),
+        centerTitle: true,
+        backgroundColor: Colors.green,
       ),
-      body: Container(
-        child: Column(
-          children: [
-            SizedBox(height: 30),
-            isImageLoaded
-                ? Center(
-                    child: Container(
-                      height: 350,
-                      width: 350,
-                      decoration: BoxDecoration(
-                        image: DecorationImage(
-                          image: FileImage(pickedImage!), // Use ! to assert non-null
-                          fit: BoxFit.contain,
-                        ),
-                      ),
-                    ),
-                  )
-                : Container(),
-            if (_class.isNotEmpty && _confidence.isNotEmpty)
-              Text("Name : $_class \n Confidence: $_confidence"), // Render text only if _name and _confidence are not empty
-          ],
+      body: _loading
+          ? Center(child: CircularProgressIndicator())
+          : Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  ElevatedButton(
+                    onPressed: _pickImageFromGallery,
+                    child: Text('Choose Image from Gallery'),
+                  ),
+                  ElevatedButton(
+                    onPressed: _takePhoto,
+                    child: Text('Take a Photo'),
+                  ),
+               _output != null
+  ? Column(
+      children: [
+        Text('Detected Fruit: ${_output![0]['label'].split(' ').last}'),
+        SizedBox(height: 10),
+        Text('Advantages:'),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: fruitAdvantages[_output![0]['label'].split(' ').last]!.map((advantage) {
+            return Text('- $advantage\n'); // Add a line break (\n) between each advantage
+          }).toList(),
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          getImageFromGallery();
-        },
-        child: Icon(Icons.photo_album),
-      ),
+      ],
+    )
+  : Container(),
+
+
+
+                ],
+              ),
+            ),
     );
   }
+
+  Future<void> loadModel() async {
+    await Tflite.loadModel(
+      model: 'assets/model.tflite',
+      labels: 'assets/labels.txt',
+    );
+  }
+
+  void _pickImageFromGallery() async {
+    var imagePicker = ImagePicker();
+    var image = await imagePicker.pickImage(source: ImageSource.gallery);
+    if (image == null) return;
+    _classifyImage(image.path);
+  }
+
+  void _takePhoto() async {
+    var imagePicker = ImagePicker();
+    var image = await imagePicker.pickImage(source: ImageSource.camera);
+    if (image == null) return;
+    _classifyImage(image.path);
+  }
+
+  void _classifyImage(String imagePath) async {
+    var output = await Tflite.runModelOnImage(
+      path: imagePath,
+      numResults: 2,
+      threshold: 0.5,
+      imageMean: 127.5,
+      imageStd: 127.5,
+    );
+    setState(() {
+      _output = output;
+    });
+  }
+
+  @override
+  void dispose() {
+    Tflite.close();
+    super.dispose();
+  }
+}
+
+void main() {
+  runApp(MaterialApp(
+    home: FruitClassifierApp(),
+  ));
 }
