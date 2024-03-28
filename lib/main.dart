@@ -43,7 +43,7 @@ class _MainScreenState extends State<MainScreen> {
       body: Container(
         decoration: BoxDecoration(
           image: DecorationImage(
-            image: AssetImage('assets/back2.jpeg'), // Replace 'assets/background_image.jpg' with your image path
+            image: AssetImage('assets/back.jpeg'), // Replace 'assets/background_image.jpg' with your image path
             fit: BoxFit.cover,
           ),
         ),
@@ -103,7 +103,7 @@ class PredictionScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Prediction'),
+        title: Text('Detection'),
       ),
       body: Center(
         child: Column(
@@ -111,8 +111,8 @@ class PredictionScreen extends StatelessWidget {
           children: [
             Image.file(
               File(imagePath),
-              height: 200, // Adjust the height as needed
-              width: 200, // Adjust the width as needed
+              height: 250, // Adjust the height as needed
+              width: 250, // Adjust the width as needed
             ),
             SizedBox(height: 10),
             Text('Classified as: $predictedLabel'), // Predicted label below the image

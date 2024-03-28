@@ -65,7 +65,7 @@ flutter:
   assets:
     - assets/labels.txt
     - assets/model.tflite
-    - assets/back2.jpeg
+    - assets/back.jpeg
    
 
   # An image asset can refer to one or more resolution-specific "variants", see
