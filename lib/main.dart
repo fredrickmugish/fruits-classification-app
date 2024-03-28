@@ -103,7 +103,11 @@ class PredictionScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Detection'),
+        title: Text('Detection',
+        style: TextStyle(color: Colors.white),),
+        centerTitle: false,
+        backgroundColor: Colors.green,
+        iconTheme: IconThemeData(color: Colors.white),
       ),
       body: Center(
         child: Column(
