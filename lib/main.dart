@@ -89,8 +89,6 @@ class _MainScreenState extends State<MainScreen> {
   }
 }
 
-
-
 class PredictionScreen extends StatelessWidget {
   final String predictedLabel;
   final String imagePath;
@@ -103,43 +101,46 @@ class PredictionScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Detection',
-        style: TextStyle(color: Colors.white),),
-        centerTitle: false,
+        title: Text(
+          'Prediction',
+          style: TextStyle(color: Colors.white),
+        ),
         backgroundColor: Colors.green,
         iconTheme: IconThemeData(color: Colors.white),
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Image.file(
-              File(imagePath),
-              height: 250, // Adjust the height as needed
-              width: 250, // Adjust the width as needed
-            ),
-            SizedBox(height: 10),
-            Text('Classified as: $predictedLabel'), // Predicted label below the image
-            SizedBox(height: 10),
-            Text(
-              'Advantages:',
-              style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
-            ),
-            if (advantages != null)
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: advantages
-                    .map((advantage) => Text(' - $advantage'))
-                    .toList(),
+      body: SingleChildScrollView(
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Image.file(
+                File(imagePath),
+                height: 250,
+                width: 250,
               ),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: Text('Back to Home'),
-            ),
-          ],
+              SizedBox(height: 10),
+              Text('Classified as: $predictedLabel',
+               style: TextStyle(fontSize: 16),),
+              SizedBox(height: 10),
+            
+              if (advantages != null)
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: advantages
+                      .map((advantage) => Text('  -$advantage',
+                       style: TextStyle(fontSize: 15),
+                      ))
+                      .toList(),
+                ),
+              SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: Text('Back to Home'),
+              ),
+            ],
+          ),
         ),
       ),
     );

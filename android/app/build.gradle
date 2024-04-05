@@ -24,7 +24,7 @@ if (flutterVersionName == null) {
 
 android {
     namespace "com.example.demo"
-    compileSdk flutter.compileSdkVersion
+    compileSdkVersion flutter.compileSdkVersion
     ndkVersion flutter.ndkVersion
 
     compileOptions {
@@ -40,20 +40,18 @@ android {
         main.java.srcDirs += 'src/main/kotlin'
     }
 
- defaultConfig {
-    applicationId "com.company.test"
-    minSdkVersion 26  // Set your desired minimum SDK version here
-    targetSdkVersion 28
-    versionCode flutterVersionCode.toInteger()
-    versionName flutterVersionName
-    testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-    
-}
-
+    defaultConfig {
+        applicationId "com.company.test"
+        minSdkVersion 26  // Set your desired minimum SDK version here
+        targetSdkVersion 31 // Updated targetSdkVersion
+        versionCode flutterVersionCode.toInteger()
+        versionName flutterVersionName
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
 
     lintOptions {
-    disable 'MissingSafetyMargin' // Example unchecked operation warning
-  }
+        disable 'MissingSafetyMargin' // Example unchecked operation warning
+    }
 
     buildTypes {
         release {
